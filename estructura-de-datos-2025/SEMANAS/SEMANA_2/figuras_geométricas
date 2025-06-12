@@ -1,0 +1,105 @@
+using System;
+
+// Definición de la clase Circulo
+public class Circulo
+{
+    // Variables encapsuladas para el radio del círculo
+    private double radio;
+
+    // Constructor de la clase Circulo
+    public Circulo(double radio)
+    {
+        // Asigna el valor del radio proporcionado al crear una instancia de Circulo
+        this.radio = radio;
+    }
+
+    /// <summary>
+    /// Calcula el área del círculo.
+    /// </summary>
+    /// <returns>El área calculada del círculo.</returns>
+    public double CalcularArea()
+    {
+        // CalcularArea es una función que devuelve un valor double, se utiliza para calcular el área de un círculo,
+        // basándose en el radio encapsulado en la clase.
+        return Math.PI * radio * radio;
+    }
+
+    /// <summary>
+    /// Calcula el perímetro del círculo.
+    /// </summary>
+    /// <returns>El perímetro calculado del círculo.</returns>
+    public double CalcularPerimetro()
+    {
+        // CalcularPerimetro es una función que devuelve un valor double, se utiliza para calcular el perímetro
+        // (o circunferencia) de un círculo, basándose en el radio encapsulado en la clase.
+        return 2 * Math.PI * radio;
+    }
+}
+
+// Definición de la clase Rectangulo
+public class Rectangulo
+{
+    // Variables encapsuladas para el ancho y la altura del rectángulo
+    private double ancho;
+    private double altura;
+
+    // Constructor de la clase Rectangulo
+    public Rectangulo(double ancho, double altura)
+    {
+        // Asigna los valores del ancho y la altura proporcionados al crear una instancia de Rectangulo
+        this.ancho = ancho;
+        this.altura = altura;
+    }
+
+    /// <summary>
+    /// Calcula el área del rectángulo.
+    /// </summary>
+    /// <returns>El área calculada del rectángulo.</returns>
+    public double CalcularArea()
+    {
+        // CalcularArea es una función que devuelve un valor double, se utiliza para calcular el área de un rectángulo,
+        // basándose en el ancho y la altura encapsulados en la clase.
+        return ancho * altura;
+    }
+
+    /// <summary>
+    /// Calcula el perímetro del rectángulo.
+    /// </summary>
+    /// <returns>El perímetro calculado del rectángulo.</returns>
+    public double CalcularPerimetro()
+    {
+        // CalcularPerimetro es una función que devuelve un valor double, se utiliza para calcular el perímetro
+        // de un rectángulo, basándose en el ancho y la altura encapsulados en la clase.
+        return 2 * (ancho + altura);
+    }
+}
+
+// Puedes crear una clase principal (Program.cs) para probar estas clases:
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        // Crear una instancia de Circulo
+        Circulo miCirculo = new Circulo(5.0);
+        Console.WriteLine("--- Círculo ---");
+        Console.WriteLine($"Radio: 5.0");
+        Console.WriteLine($"Área del círculo: {miCirculo.CalcularArea()}");
+        Console.WriteLine($"Perímetro del círculo: {miCirculo.CalcularPerimetro()}");
+        Console.WriteLine();
+
+        // Crear una instancia de Rectangulo
+        Rectangulo miRectangulo = new Rectangulo(4.0, 6.0);
+        Console.WriteLine("--- Rectángulo ---");
+        Console.WriteLine($"Ancho: 4.0, Altura: 6.0");
+        Console.WriteLine($"Área del rectángulo: {miRectangulo.CalcularArea()}");
+        Console.WriteLine($"Perímetro del rectángulo: {miRectangulo.CalcularPerimetro()}");
+        Console.WriteLine();
+
+        // Ejemplo con un cuadrado (un tipo especial de rectángulo)
+        Rectangulo miCuadrado = new Rectangulo(7.0, 7.0);
+        Console.WriteLine("--- Cuadrado (como Rectángulo) ---");
+        Console.WriteLine($"Lado: 7.0");
+        Console.WriteLine($"Área del cuadrado: {miCuadrado.CalcularArea()}");
+        Console.WriteLine($"Perímetro del cuadrado: {miCuadrado.CalcularPerimetro()}");
+    }
+}
