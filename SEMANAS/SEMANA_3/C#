@@ -1,0 +1,134 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Estudiante
+{
+    public int Id { get; set; }
+    public string Nombres { get; set; } = string.Empty;
+    public string Apellidos { get; set; } = string.Empty;
+    public string Direccion { get; set; } = string.Empty;
+    public string[] Telefonos { get; set; } = new string[3];
+
+    public Estudiante(int id, string nombres, string apellidos, string direccion, string[] telefonos)
+    {
+        Id = id;
+        Nombres = nombres ?? throw new ArgumentNullException(nameof(nombres));
+        Apellidos = apellidos ?? throw new ArgumentNullException(nameof(apellidos));
+        Direccion = direccion ?? throw new ArgumentNullException(nameof(direccion));
+        
+        if (telefonos == null || telefonos.Length != 3)
+            throw new ArgumentException("Debe proporcionar exactamente 3 teléfonos.");
+        
+        Telefonos = telefonos;
+    }
+
+    public Estudiante()
+    {
+        Telefonos = new string[3];
+    }
+
+    public void AsignarTelefonos(string telefono1, string telefono2, string telefono3)
+    {
+        Telefonos[0] = telefono1;
+        Telefonos[1] = telefono2;
+        Telefonos[2] = telefono3;
+    }
+
+    public void MostrarInformacion()
+    {
+        Console.WriteLine($"ID: {Id}");
+        Console.WriteLine($"Nombres: {Nombres}");
+        Console.WriteLine($"Apellidos: {Apellidos}");
+        Console.WriteLine($"Dirección: {Direccion}");
+        Console.WriteLine("Teléfonos:");
+        foreach (var telefono in Telefonos)
+        {
+            Console.WriteLine($"- {telefono ?? "No asignado"}");
+        }
+    }
+}
+
+public class RegistroEstudiantes
+{
+    private readonly List<Estudiante> _listaEstudiantes = new();
+
+    public void AgregarEstudiante(Estudiante estudiante)
+    {
+        if (estudiante == null)
+            throw new ArgumentNullException(nameof(estudiante));
+
+        if (_listaEstudiantes.Any(e => e.Id == estudiante.Id))
+        {
+            Console.WriteLine($"Error: Ya existe un estudiante con ID {estudiante.Id}.");
+            return;
+        }
+
+        _listaEstudiantes.Add(estudiante);
+        Console.WriteLine($"Estudiante con ID {estudiante.Id} agregado correctamente.");
+    }
+
+    public Estudiante BuscarEstudiantePorId(int id)
+    {
+        return _listaEstudiantes.FirstOrDefault(e => e.Id == id);
+    }
+
+    public void MostrarTodosLosEstudiantes()
+    {
+        if (!_listaEstudiantes.Any())
+        {
+            Console.WriteLine("No hay estudiantes registrados.");
+            return;
+        }
+
+        Console.WriteLine("\n--- Lista de Estudiantes ---");
+        foreach (var estudiante in _listaEstudiantes)
+        {
+            estudiante.MostrarInformacion();
+            Console.WriteLine("--------------------------");
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var registro = new RegistroEstudiantes();
+
+        // Estudiante 1: Usando constructor con parámetros
+        var telefonosEstudiante1 = new[] { "1234567", "9876543", "5551234" };
+        var estudiante1 = new Estudiante(1, "Juan", "Perez", "Calle Falsa 123", telefonosEstudiante1);
+        registro.AgregarEstudiante(estudiante1);
+
+        // Estudiante 2: Usando constructor vacío + método seguro para teléfonos
+        var estudiante2 = new Estudiante
+        {
+            Id = 2,
+            Nombres = "Maria",
+            Apellidos = "Gonzalez",
+            Direccion = "Avenida Siempre Viva 742"
+        };
+        estudiante2.AsignarTelefonos("1112223", "4445556", "7778889");
+        registro.AgregarEstudiante(estudiante2);
+
+        // Mostrar todos
+        registro.MostrarTodosLosEstudiantes();
+
+        // Buscar estudiante
+        Console.WriteLine("\n--- Buscando estudiante con ID 1 ---");
+        var estudianteEncontrado = registro.BuscarEstudiantePorId(1);
+        if (estudianteEncontrado != null)
+        {
+            estudianteEncontrado.MostrarInformacion();
+        }
+
+        // Buscar estudiante que no existe
+        Console.WriteLine("\n--- Buscando estudiante con ID 3 (no existe) ---");
+        var estudianteNoExistente = registro.BuscarEstudiantePorId(3);
+        if (estudianteNoExistente == null)
+        {
+            Console.WriteLine("No se encontró el estudiante con ID 3");
+        }
+    }
+}
