@@ -1,0 +1,175 @@
+using System;
+using System.Collections.Generic;
+using System.Linq; // Necesario para el método Where en la búsqueda
+
+// Clase que representa un contacto individual
+public class Contacto
+{
+    public string Nombre { get; set; }
+    private string _numeroTelefono; // Campo privado para el número de teléfono
+
+    public string NumeroTelefono
+    {
+        get { return _numeroTelefono; }
+        set
+        {
+            // Simple validación: asegurarnos de que no sea nulo/vacío y no contenga letras (solo números y quizás algunos caracteres como '-')
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                Console.WriteLine("El número de teléfono no puede estar vacío.");
+                _numeroTelefono = "N/A"; // Asignar un valor por defecto o dejar nulo, según la lógica deseada
+            }
+            else if (!value.All(c => char.IsDigit(c) || c == '+' || c == '-' || c == '(' || c == ')' || c == ' ')) // Permite dígitos y algunos caracteres comunes en números de teléfono
+            {
+                Console.WriteLine("El número de teléfono solo puede contener dígitos, espacios, guiones o signos de suma.");
+                _numeroTelefono = "N/A";
+            }
+            else
+            {
+                _numeroTelefono = value;
+            }
+        }
+    }
+
+    public string CorreoElectronico { get; set; }
+
+    // Constructor para inicializar un nuevo contacto
+    public Contacto(string nombre, string numeroTelefono, string correoElectronico)
+    {
+        Nombre = nombre;
+        NumeroTelefono = numeroTelefono; // Utiliza la propiedad, lo que activa la validación
+        CorreoElectronico = correoElectronico;
+    }
+
+    // Método para mostrar la información del contacto
+    public void MostrarInformacion()
+    {
+        Console.WriteLine($"--- Contacto ---");
+        Console.WriteLine($"Nombre: {Nombre}");
+        Console.WriteLine($"Teléfono: {NumeroTelefono}");
+        Console.WriteLine($"Correo: {CorreoElectronico}");
+        Console.WriteLine($"----------------");
+    }
+}
+
+// Clase que gestiona la lista de contactos
+public class AgendaTelefonica
+{
+    private List<Contacto> contactos;
+
+    public AgendaTelefonica()
+    {
+        contactos = new List<Contacto>();
+    }
+
+    // Método para agregar un nuevo contacto a la agenda
+    public void AgregarContacto(Contacto nuevoContacto)
+    {
+        // Puedes agregar más validaciones aquí, por ejemplo, si el contacto ya existe
+        if (nuevoContacto != null)
+        {
+            contactos.Add(nuevoContacto);
+            Console.WriteLine($"Contacto '{nuevoContacto.Nombre}' agregado exitosamente.");
+        }
+        else
+        {
+            Console.WriteLine("No se puede agregar un contacto nulo.");
+        }
+    }
+
+    // Método para mostrar todos los contactos en la agenda
+    public void MostrarContactos()
+    {
+        if (contactos.Count == 0)
+        {
+            Console.WriteLine("La agenda está vacía.");
+            return;
+        }
+
+        Console.WriteLine("\n--- Lista de Contactos ---");
+        foreach (var contacto in contactos)
+        {
+            contacto.MostrarInformacion();
+            Console.WriteLine(); // Espacio entre contactos
+        }
+        Console.WriteLine("--------------------------");
+    }
+
+    // Método para buscar contactos por nombre (o parte del nombre)
+    public void BuscarContacto(string textoBusqueda)
+    {
+        if (string.IsNullOrWhiteSpace(textoBusqueda))
+        {
+            Console.WriteLine("Por favor, introduce un texto para buscar.");
+            return;
+        }
+
+        // Usamos LINQ para encontrar contactos que contengan el texto de búsqueda en su nombre (ignorando mayúsculas/minúsculas)
+        var resultados = contactos.Where(c => c.Nombre.Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (resultados.Any())
+        {
+            Console.WriteLine($"\n--- Resultados de la Búsqueda para '{textoBusqueda}' ---");
+            foreach (var contacto in resultados)
+            {
+                contacto.MostrarInformacion();
+                Console.WriteLine();
+            }
+            Console.WriteLine("--------------------------------------------------");
+        }
+        else
+        {
+            Console.WriteLine($"No se encontraron contactos que coincidan con '{textoBusqueda}'.");
+        }
+    }
+}
+
+// Clase principal que ejecuta la aplicación
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        AgendaTelefonica miAgenda = new AgendaTelefonica();
+
+        while (true)
+        {
+            Console.WriteLine("\n--- Menú de la Agenda Telefónica ---");
+            Console.WriteLine("1. Agregar Contacto");
+            Console.WriteLine("2. Mostrar Todos los Contactos");
+            Console.WriteLine("3. Buscar Contacto por Nombre");
+            Console.WriteLine("4. Salir");
+            Console.Write("Seleccione una opción: ");
+
+            string opcion = Console.ReadLine();
+
+            switch (opcion)
+            {
+                case "1":
+                    Console.Write("Ingrese el nombre del contacto: ");
+                    string nombre = Console.ReadLine();
+                    Console.Write("Ingrese el número de teléfono: ");
+                    string telefono = Console.ReadLine();
+                    Console.Write("Ingrese el correo electrónico (opcional): ");
+                    string email = Console.ReadLine();
+
+                    Contacto nuevo = new Contacto(nombre, telefono, email);
+                    miAgenda.AgregarContacto(nuevo);
+                    break;
+                case "2":
+                    miAgenda.MostrarContactos();
+                    break;
+                case "3":
+                    Console.Write("Ingrese el nombre o parte del nombre a buscar: ");
+                    string busqueda = Console.ReadLine();
+                    miAgenda.BuscarContacto(busqueda);
+                    break;
+                case "4":
+                    Console.WriteLine("Saliendo de la agenda. ¡Hasta luego!");
+                    return; // Termina la aplicación
+                default:
+                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
+                    break;
+            }
+        }
+    }
+}
