@@ -1,0 +1,37 @@
+using System;
+using System.Collections.Generic; // Necesario para usar List<T>
+using System.Linq; // Necesario para usar métodos como Where() o Reverse() si se usan
+
+public class AbecedarioFiltrado
+{
+    public static void Main(string[] args)
+    {
+        // 1. Almacenar el abecedario en una lista
+        List<char> abecedario = new List<char>();
+        for (char c = 'a'; c <= 'z'; c++)
+        {
+            abecedario.Add(c);
+        }
+
+        // 2. Eliminar las letras que ocupan posiciones múltiplos de 3
+        // Es importante iterar de forma inversa cuando eliminas elementos por índice,
+        // para que los índices no cambien antes de que los alcances.
+        for (int i = abecedario.Count - 1; i >= 0; i--)
+        {
+            // El índice de la posición es 'i'.
+            // Si (i + 1) % 3 == 0, significa que la posición (basada en 1) es un múltiplo de 3.
+            // Si i % 3 == 0, significa que el índice (basado en 0) es un múltiplo de 3.
+            // La consigna dice "posiciones múltiplos de 3". Si la posición 1 es el primer elemento,
+            // la posición 3 es el tercer elemento (índice 2).
+            // Por lo tanto, necesitamos eliminar cuando (índice + 1) es múltiplo de 3.
+            if ((i + 1) % 3 == 0)
+            {
+                abecedario.RemoveAt(i);
+            }
+        }
+
+        // 3. Mostrar por pantalla la lista resultante
+        Console.WriteLine("Abecedario filtrado (eliminadas posiciones múltiplos de 3):");
+        Console.WriteLine(string.Join(", ", abecedario));
+    }
+}
