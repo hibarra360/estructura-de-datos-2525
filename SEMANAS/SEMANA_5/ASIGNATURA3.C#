@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic; // Necesario para usar List<T>
+using System.Linq; // Necesario para usar el método Reverse() de LINQ
+
+public class NumerosInversos
+{
+    public static void Main(string[] args)
+    {
+        // 1. Almacenar los números del 1 al 10 en una lista
+        List<int> numeros = new List<int>();
+        for (int i = 1; i <= 10; i++)
+        {
+            numeros.Add(i);
+        }
+
+        // 2. Invertir el orden de los elementos en la lista
+        // Opción 1: Usando el método Reverse() de List<T> (modifica la lista original)
+        // numeros.Reverse();
+
+        // Opción 2: Usando LINQ (crea una nueva colección invertida sin modificar la original)
+        // Esta es útil si necesitas la lista original sin cambios más adelante.
+        IEnumerable<int> numerosInvertidos = numeros.AsEnumerable().Reverse();
+
+
+        // 3. Mostrar los números por pantalla en orden inverso separados por comas
+        // Para la Opción 1 (numeros.Reverse();):
+        // Console.WriteLine(string.Join(", ", numeros));
+
+        // Para la Opción 2 (numerosInvertidos):
+        Console.WriteLine(string.Join(", ", numerosInvertidos));
+    }
+}
