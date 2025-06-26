@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic; // Necesario para usar List<T>
+
+public class GestorDeNotas
+{
+    public static void Main(string[] args)
+    {
+        // 1. Almacenar las asignaturas en una lista
+        List<string> asignaturas = new List<string>
+        {
+            "Matemáticas",
+            "Física",
+            "Química",
+            "Historia",
+            "Lengua"
+        };
+
+        // Lista para almacenar las notas correspondientes a cada asignatura
+        List<double> notas = new List<double>();
+
+        // 2. Preguntar al usuario la nota para cada asignatura
+        Console.WriteLine("Por favor, introduce la nota que has sacado en cada asignatura (entre 0 y 10):");
+
+        foreach (string asignatura in asignaturas)
+        {
+            double nota;
+            bool entradaValida = false;
+
+            while (!entradaValida)
+            {
+                Console.Write($"¿Qué nota has sacado en {asignatura}? ");
+                string? inputUsuario = Console.ReadLine(); // Permite que inputUsuario sea nulo
+
+                // Intentar convertir la entrada a un número decimal (double)
+                if (double.TryParse(inputUsuario, out nota))
+                {
+                    // Validar que la nota esté en el rango de 0 a 10
+                    if (nota >= 0 && nota <= 10)
+                    {
+                        notas.Add(nota); // Añadir la nota a la lista
+                        entradaValida = true; // La entrada es válida, salir del bucle
+                    }
+                    else
+                    {
+                        Console.WriteLine("La nota debe estar entre 0 y 10. Por favor, inténtalo de nuevo.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Entrada no válida. Por favor, introduce un número.");
+                }
+            }
+        }
+
+        // 3. Mostrar las asignaturas y sus notas por pantalla
+        Console.WriteLine("\n--- Tus notas finales ---");
+        for (int i = 0; i < asignaturas.Count; i++)
+        {
+            Console.WriteLine($"En {asignaturas[i]} has sacado {notas[i]}");
+        }
+    }
+}
