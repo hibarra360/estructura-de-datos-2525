@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic; // Para usar Dictionary<TKey, TValue>
+using System.Linq; // Para el método ToLower() y Count() de LINQ
+
+public class ContadorVocales
+{
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("Por favor, introduce una palabra:");
+        // Leer la palabra del usuario. El '?' indica que puede ser nulo.
+        string? palabraInput = Console.ReadLine();
+
+        // Si el usuario no introduce nada, se asigna una cadena vacía.
+        // Convertimos la palabra a minúsculas para hacer el conteo insensible a mayúsculas/minúsculas.
+        string palabra = (palabraInput ?? "").ToLower();
+
+        // Diccionario para almacenar el conteo de cada vocal
+        // La clave es el carácter de la vocal y el valor es el número de veces que aparece.
+        Dictionary<char, int> conteoVocales = new Dictionary<char, int>()
+        {
+            {'a', 0},
+            {'e', 0},
+            {'i', 0},
+            {'o', 0},
+            {'u', 0}
+        };
+
+        // Recorrer cada carácter de la palabra
+        foreach (char letra in palabra)
+        {
+            // Comprobar si la letra actual es una vocal y actualizar el conteo
+            if (conteoVocales.ContainsKey(letra))
+            {
+                conteoVocales[letra]++;
+            }
+        }
+
+        // Mostrar los resultados por pantalla
+        Console.WriteLine("\n--- Conteo de Vocales ---");
+        foreach (var par in conteoVocales)
+        {
+            Console.WriteLine($"La vocal '{par.Key}' aparece {par.Value} veces.");
+        }
+    }
+}
