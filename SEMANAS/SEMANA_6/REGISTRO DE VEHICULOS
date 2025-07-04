@@ -1,0 +1,293 @@
+using System;
+
+// Clase para representar un vehículo
+public class Vehiculo
+{
+    public string Placa { get; set; }
+    public string Marca { get; set; }
+    public string Modelo { get; set; }
+    public int Anio { get; set; }
+    public decimal Precio { get; set; }
+    public Vehiculo Siguiente { get; set; }
+
+    public Vehiculo(string placa, string marca, string modelo, int anio, decimal precio)
+    {
+        if (string.IsNullOrWhiteSpace(placa))
+            throw new ArgumentException("La placa no puede estar vacía");
+        if (string.IsNullOrWhiteSpace(marca))
+            throw new ArgumentException("La marca no puede estar vacía");
+        if (string.IsNullOrWhiteSpace(modelo))
+            throw new ArgumentException("El modelo no puede estar vacío");
+        if (anio <= 1885 || anio > DateTime.Now.Year + 1)
+            throw new ArgumentException("El año no es válido");
+        if (precio <= 0)
+            throw new ArgumentException("El precio debe ser mayor que cero");
+
+        Placa = placa.Trim();
+        Marca = marca.Trim();
+        Modelo = modelo.Trim();
+        Anio = anio;
+        Precio = precio;
+        Siguiente = null;
+    }
+
+    public void MostrarInformacion()
+    {
+        Console.WriteLine($"Placa: {Placa}, Marca: {Marca}, Modelo: {Modelo}, Año: {Anio}, Precio: {Precio:C}");
+    }
+}
+
+// Clase para la lista enlazada de vehículos
+public class Estacionamiento
+{
+    private Vehiculo cabeza;
+    private int count;
+
+    public Estacionamiento()
+    {
+        cabeza = null;
+        count = 0;
+    }
+
+    public int Count => count;
+
+    // a. Agregar vehículo
+    public void AgregarVehiculo(string placa, string marca, string modelo, int anio, decimal precio)
+    {
+        try
+        {
+            Vehiculo nuevoVehiculo = new Vehiculo(placa, marca, modelo, anio, precio);
+            
+            // Verificar si la placa ya existe
+            if (BuscarVehiculoPorPlaca(nuevoVehiculo.Placa) != null)
+            {
+                Console.WriteLine("Error: Ya existe un vehículo con esta placa.");
+                return;
+            }
+
+            if (cabeza == null)
+            {
+                cabeza = nuevoVehiculo;
+            }
+            else
+            {
+                Vehiculo actual = cabeza;
+                while (actual.Siguiente != null)
+                {
+                    actual = actual.Siguiente;
+                }
+                actual.Siguiente = nuevoVehiculo;
+            }
+            count++;
+            Console.WriteLine("Vehículo agregado exitosamente.");
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Error al agregar vehículo: {ex.Message}");
+        }
+    }
+
+    // b. Buscar vehículo por placa
+    public Vehiculo BuscarVehiculoPorPlaca(string placa)
+    {
+        if (string.IsNullOrWhiteSpace(placa))
+            return null;
+
+        Vehiculo actual = cabeza;
+        while (actual != null)
+        {
+            if (actual.Placa.Equals(placa.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return actual;
+            }
+            actual = actual.Siguiente;
+        }
+        return null;
+    }
+
+    // c. Ver vehículos por año
+    public void VerVehiculosPorAnio(int anio)
+    {
+        if (anio <= 1885 || anio > DateTime.Now.Year + 1)
+        {
+            Console.WriteLine("Año no válido.");
+            return;
+        }
+
+        Vehiculo actual = cabeza;
+        bool encontrado = false;
+        Console.WriteLine($"\n--- Vehículos del año {anio} ---");
+        while (actual != null)
+        {
+            if (actual.Anio == anio)
+            {
+                actual.MostrarInformacion();
+                encontrado = true;
+            }
+            actual = actual.Siguiente;
+        }
+        if (!encontrado)
+        {
+            Console.WriteLine($"No se encontraron vehículos del año {anio}.");
+        }
+    }
+
+    // d. Ver todos los vehículos registrados
+    public void VerTodosLosVehiculos()
+    {
+        if (cabeza == null)
+        {
+            Console.WriteLine("No hay vehículos registrados en el estacionamiento.");
+            return;
+        }
+
+        Vehiculo actual = cabeza;
+        Console.WriteLine($"\n--- Todos los vehículos registrados ({count} vehículos) ---");
+        int index = 1;
+        while (actual != null)
+        {
+            Console.Write($"{index}. ");
+            actual.MostrarInformacion();
+            actual = actual.Siguiente;
+            index++;
+        }
+    }
+
+    // e. Eliminar carro registrado
+    public bool EliminarVehiculo(string placa)
+    {
+        if (string.IsNullOrWhiteSpace(placa))
+        {
+            Console.WriteLine("La placa no puede estar vacía.");
+            return false;
+        }
+
+        if (cabeza == null)
+        {
+            Console.WriteLine("No hay vehículos para eliminar.");
+            return false;
+        }
+
+        // Si el vehículo a eliminar es la cabeza de la lista
+        if (cabeza.Placa.Equals(placa.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine($"Vehículo con placa {cabeza.Placa} eliminado.");
+            cabeza = cabeza.Siguiente;
+            count--;
+            return true;
+        }
+
+        Vehiculo actual = cabeza;
+        Vehiculo anterior = null;
+
+        while (actual != null && !actual.Placa.Equals(placa.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            anterior = actual;
+            actual = actual.Siguiente;
+        }
+
+        if (actual == null)
+        {
+            Console.WriteLine($"Vehículo con placa {placa} no encontrado.");
+            return false;
+        }
+        else
+        {
+            Console.WriteLine($"Vehículo con placa {actual.Placa} eliminado.");
+            anterior.Siguiente = actual.Siguiente;
+            count--;
+            return true;
+        }
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        Estacionamiento miEstacionamiento = new Estacionamiento();
+        string opcion;
+
+        do
+        {
+            Console.WriteLine("\n--- Menú de Gestión de Estacionamiento ---");
+            Console.WriteLine("a. Agregar vehículo");
+            Console.WriteLine("b. Buscar vehículo por placa");
+            Console.WriteLine("c. Ver vehículos por año");
+            Console.WriteLine("d. Ver todos los vehículos registrados");
+            Console.WriteLine("e. Eliminar carro registrado");
+            Console.WriteLine("s. Salir");
+            Console.Write("Ingrese su opción: ");
+            opcion = Console.ReadLine()?.ToLower() ?? "";
+
+            switch (opcion)
+            {
+                case "a":
+                    try
+                    {
+                        Console.Write("Ingrese la placa: ");
+                        string placa = Console.ReadLine()?.Trim() ?? "";
+                        Console.Write("Ingrese la marca: ");
+                        string marca = Console.ReadLine()?.Trim() ?? "";
+                        Console.Write("Ingrese el modelo: ");
+                        string modelo = Console.ReadLine()?.Trim() ?? "";
+                        Console.Write("Ingrese el año: ");
+                        int anio;
+                        while (!int.TryParse(Console.ReadLine(), out anio) || anio <= 1885 || anio > DateTime.Now.Year + 1)
+                        {
+                            Console.Write($"Año inválido. Ingrese un número entre 1886 y {DateTime.Now.Year + 1}: ");
+                        }
+                        Console.Write("Ingrese el precio: ");
+                        decimal precio;
+                        while (!decimal.TryParse(Console.ReadLine(), out precio) || precio <= 0)
+                        {
+                            Console.Write("Precio inválido. Ingrese un número mayor que cero: ");
+                        }
+                        miEstacionamiento.AgregarVehiculo(placa, marca, modelo, anio, precio);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
+                    break;
+                case "b":
+                    Console.Write("Ingrese la placa del vehículo a buscar: ");
+                    string placaBuscar = Console.ReadLine()?.Trim() ?? "";
+                    Vehiculo vehiculoEncontrado = miEstacionamiento.BuscarVehiculoPorPlaca(placaBuscar);
+                    if (vehiculoEncontrado != null)
+                    {
+                        Console.WriteLine("Vehículo encontrado:");
+                        vehiculoEncontrado.MostrarInformacion();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Vehículo con placa {placaBuscar} no encontrado.");
+                    }
+                    break;
+                case "c":
+                    Console.Write("Ingrese el año para ver los vehículos: ");
+                    int anioBuscar;
+                    while (!int.TryParse(Console.ReadLine(), out anioBuscar) || anioBuscar <= 1885 || anioBuscar > DateTime.Now.Year + 1)
+                    {
+                        Console.Write($"Año inválido. Ingrese un número entre 1886 y {DateTime.Now.Year + 1}: ");
+                    }
+                    miEstacionamiento.VerVehiculosPorAnio(anioBuscar);
+                    break;
+                case "d":
+                    miEstacionamiento.VerTodosLosVehiculos();
+                    break;
+                case "e":
+                    Console.Write("Ingrese la placa del vehículo a eliminar: ");
+                    string placaEliminar = Console.ReadLine()?.Trim() ?? "";
+                    miEstacionamiento.EliminarVehiculo(placaEliminar);
+                    break;
+                case "s":
+                    Console.WriteLine("Saliendo del programa. ¡Hasta luego!");
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
+                    break;
+            }
+        } while (opcion != "s");
+    }
+}

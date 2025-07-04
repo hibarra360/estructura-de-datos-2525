@@ -1,0 +1,288 @@
+using System;
+
+// Clase para representar un estudiante
+public class Estudiante
+{
+    public string Cedula { get; set; }
+    public string Nombre { get; set; }
+    public string Apellido { get; set; }
+    public string Correo { get; set; }
+    public double NotaDefinitiva { get; set; }
+    public Estudiante Siguiente { get; set; }
+
+    public Estudiante(string cedula, string nombre, string apellido, string correo, double notaDefinitiva)
+    {
+        if (string.IsNullOrWhiteSpace(cedula))
+            throw new ArgumentException("La cédula no puede estar vacía");
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new ArgumentException("El nombre no puede estar vacío");
+        if (string.IsNullOrWhiteSpace(apellido))
+            throw new ArgumentException("El apellido no puede estar vacío");
+        if (string.IsNullOrWhiteSpace(correo))
+            throw new ArgumentException("El correo no puede estar vacío");
+        if (notaDefinitiva < 1 || notaDefinitiva > 10)
+            throw new ArgumentException("La nota debe estar entre 1 y 10");
+
+        Cedula = cedula.Trim();
+        Nombre = nombre.Trim();
+        Apellido = apellido.Trim();
+        Correo = correo.Trim();
+        NotaDefinitiva = notaDefinitiva;
+        Siguiente = null;
+    }
+
+    public void MostrarInformacion()
+    {
+        Console.WriteLine($"Cédula: {Cedula}, Nombre: {Nombre} {Apellido}, Correo: {Correo}, Nota: {NotaDefinitiva} [{(NotaDefinitiva >= 6 ? "Aprobado" : "Reprobado")}]");
+    }
+}
+
+// Clase para la lista enlazada de estudiantes
+public class ListaEstudiantes
+{
+    private Estudiante cabeza;
+    private int totalEstudiantes;
+    private int aprobados;
+    private int reprobados;
+
+    public ListaEstudiantes()
+    {
+        cabeza = null;
+        totalEstudiantes = 0;
+        aprobados = 0;
+        reprobados = 0;
+    }
+
+    // a. Agregar estudiante (aprobados al inicio, reprobados al final)
+    public void AgregarEstudiante(string cedula, string nombre, string apellido, string correo, double notaDefinitiva)
+    {
+        try
+        {
+            Estudiante nuevoEstudiante = new Estudiante(cedula, nombre, apellido, correo, notaDefinitiva);
+            
+            // Verificar si la cédula ya existe
+            if (BuscarEstudiantePorCedula(nuevoEstudiante.Cedula) != null)
+            {
+                Console.WriteLine("Error: Ya existe un estudiante con esta cédula.");
+                return;
+            }
+
+            if (nuevoEstudiante.NotaDefinitiva >= 6) // Aprobado (insertar al inicio)
+            {
+                nuevoEstudiante.Siguiente = cabeza;
+                cabeza = nuevoEstudiante;
+                aprobados++;
+            }
+            else // Reprobado (insertar al final)
+            {
+                if (cabeza == null)
+                {
+                    cabeza = nuevoEstudiante;
+                }
+                else
+                {
+                    Estudiante actual = cabeza;
+                    while (actual.Siguiente != null)
+                    {
+                        actual = actual.Siguiente;
+                    }
+                    actual.Siguiente = nuevoEstudiante;
+                }
+                reprobados++;
+            }
+            totalEstudiantes++;
+            Console.WriteLine("Estudiante agregado exitosamente.");
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Error al agregar estudiante: {ex.Message}");
+        }
+    }
+
+    // b. Buscar estudiante por cédula
+    public Estudiante BuscarEstudiantePorCedula(string cedula)
+    {
+        if (string.IsNullOrWhiteSpace(cedula))
+            return null;
+
+        Estudiante actual = cabeza;
+        while (actual != null)
+        {
+            if (actual.Cedula.Equals(cedula.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return actual;
+            }
+            actual = actual.Siguiente;
+        }
+        return null;
+    }
+
+    // c. Eliminar un estudiante
+    public bool EliminarEstudiante(string cedula)
+    {
+        if (string.IsNullOrWhiteSpace(cedula))
+        {
+            Console.WriteLine("La cédula no puede estar vacía.");
+            return false;
+        }
+
+        if (cabeza == null)
+        {
+            Console.WriteLine("No hay estudiantes registrados.");
+            return false;
+        }
+
+        // Si el estudiante a eliminar es la cabeza de la lista
+        if (cabeza.Cedula.Equals(cedula.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            bool eraAprobado = cabeza.NotaDefinitiva >= 6;
+            Console.WriteLine($"Estudiante con cédula {cabeza.Cedula} eliminado.");
+            cabeza = cabeza.Siguiente;
+            totalEstudiantes--;
+            if (eraAprobado) aprobados--; else reprobados--;
+            return true;
+        }
+
+        Estudiante actual = cabeza;
+        Estudiante anterior = null;
+
+        while (actual != null && !actual.Cedula.Equals(cedula.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            anterior = actual;
+            actual = actual.Siguiente;
+        }
+
+        if (actual == null)
+        {
+            Console.WriteLine($"Estudiante con cédula {cedula} no encontrado.");
+            return false;
+        }
+        else
+        {
+            bool eraAprobado = actual.NotaDefinitiva >= 6;
+            Console.WriteLine($"Estudiante con cédula {actual.Cedula} eliminado.");
+            anterior.Siguiente = actual.Siguiente;
+            totalEstudiantes--;
+            if (eraAprobado) aprobados--; else reprobados--;
+            return true;
+        }
+    }
+
+    // d. Total estudiantes aprobados
+    public int TotalAprobados()
+    {
+        return aprobados;
+    }
+
+    // e. Total estudiantes reprobados
+    public int TotalReprobados()
+    {
+        return reprobados;
+    }
+
+    // Mostrar todos los estudiantes
+    public void MostrarEstudiantes()
+    {
+        if (cabeza == null)
+        {
+            Console.WriteLine("No hay estudiantes registrados.");
+            return;
+        }
+
+        Estudiante actual = cabeza;
+        Console.WriteLine($"\n--- Listado de Estudiantes ({totalEstudiantes} total, {aprobados} aprobados, {reprobados} reprobados) ---");
+        int index = 1;
+        while (actual != null)
+        {
+            Console.Write($"{index}. ");
+            actual.MostrarInformacion();
+            actual = actual.Siguiente;
+            index++;
+        }
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        ListaEstudiantes listaEstudiantes = new ListaEstudiantes();
+        string opcion;
+
+        do
+        {
+            Console.WriteLine("\n--- Menú de Gestión de Estudiantes de Redes III ---");
+            Console.WriteLine("a. Agregar estudiante");
+            Console.WriteLine("b. Buscar estudiante por cédula");
+            Console.WriteLine("c. Eliminar un estudiante");
+            Console.WriteLine("d. Total estudiantes aprobados");
+            Console.WriteLine("e. Total estudiantes reprobados");
+            Console.WriteLine("f. Mostrar todos los estudiantes");
+            Console.WriteLine("s. Salir");
+            Console.Write("Ingrese su opción: ");
+            opcion = Console.ReadLine()?.ToLower() ?? "";
+
+            switch (opcion)
+            {
+                case "a":
+                    try
+                    {
+                        Console.Write("Ingrese la cédula: ");
+                        string cedula = Console.ReadLine()?.Trim() ?? "";
+                        Console.Write("Ingrese el nombre: ");
+                        string nombre = Console.ReadLine()?.Trim() ?? "";
+                        Console.Write("Ingrese el apellido: ");
+                        string apellido = Console.ReadLine()?.Trim() ?? "";
+                        Console.Write("Ingrese el correo: ");
+                        string correo = Console.ReadLine()?.Trim() ?? "";
+                        Console.Write("Ingrese la nota definitiva (1-10): ");
+                        double nota;
+                        while (!double.TryParse(Console.ReadLine(), out nota) || nota < 1 || nota > 10)
+                        {
+                            Console.Write("Nota inválida. Ingrese un número entre 1 y 10: ");
+                        }
+                        listaEstudiantes.AgregarEstudiante(cedula, nombre, apellido, correo, nota);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
+                    break;
+                case "b":
+                    Console.Write("Ingrese la cédula del estudiante a buscar: ");
+                    string cedulaBuscar = Console.ReadLine()?.Trim() ?? "";
+                    Estudiante estudianteEncontrado = listaEstudiantes.BuscarEstudiantePorCedula(cedulaBuscar);
+                    if (estudianteEncontrado != null)
+                    {
+                        Console.WriteLine("Estudiante encontrado:");
+                        estudianteEncontrado.MostrarInformacion();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Estudiante con cédula {cedulaBuscar} no encontrado.");
+                    }
+                    break;
+                case "c":
+                    Console.Write("Ingrese la cédula del estudiante a eliminar: ");
+                    string cedulaEliminar = Console.ReadLine()?.Trim() ?? "";
+                    listaEstudiantes.EliminarEstudiante(cedulaEliminar);
+                    break;
+                case "d":
+                    Console.WriteLine($"Total de estudiantes aprobados: {listaEstudiantes.TotalAprobados()}");
+                    break;
+                case "e":
+                    Console.WriteLine($"Total de estudiantes reprobados: {listaEstudiantes.TotalReprobados()}");
+                    break;
+                case "f":
+                    listaEstudiantes.MostrarEstudiantes();
+                    break;
+                case "s":
+                    Console.WriteLine("Saliendo del programa. ¡Hasta luego!");
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
+                    break;
+            }
+        } while (opcion != "s");
+    }
+}
